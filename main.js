@@ -149,7 +149,13 @@ if (session.webcamonly==true){
 	getById("container-2").className = 'column columnfade advanced'; // Hide screen share on mobile
 }
 
-
+if (urlParams.has('password')){
+	session.password = urlParams.get('password');
+	if (session.password.length==0){
+		session.password = prompt("Please enter the password to continue");
+	}
+	getById("passwordRoom").value = session.password;
+}
 
 if (urlParams.has('stereo')){ // both peers need this enabled for HD stereo to be on. If just pub, you get no echo/noise cancellation. if just viewer, you get high bitrate mono 
 	log("STEREO ENABLED");
@@ -486,6 +492,15 @@ if (urlParams.has('channels')){
 	log("max channels is 32; channels offset");
 }
 
+if (urlParams.has('maxviewers')){
+	if (urlParams.get('maxviewers').length==0){
+		session.maxviewers = 1;
+	} else {
+		session.maxviewers = parseInt(urlParams.get('maxviewers'));
+	}
+	log("maxviewers set");
+}
+
 if (urlParams.has('secure')){
 	session.security = true;
 	setTimeout(function() {alert("Enhanced Security Mode Enabled.");}, 100);
@@ -619,7 +634,7 @@ if ((urlParams.has('permaid')) || (urlParams.has('push'))){
 	getById("info").innerHTML = "";
 	getById("add_camera").innerHTML = "Share your Camera";
 	getById("add_screen").innerHTML = "Share your Screen";
-	
+	getById("passwordRoom").value = "";
 	getById("videoname1").value = "";
 	getById("dirroomid").innerHTML = "";
 	getById("roomid").innerHTML = "";
@@ -763,6 +778,10 @@ function toggleVideoMute(){ // TODO: I need to have this be MUTE, toggle, with v
 	}
 }
 
+function hangup(){ // TODO: I need to have this be MUTE, toggle, with volume not touched.
+	session.hangup();
+}
+
 function directEnable(ele){ // A directing room only is controlled by the Director, with the exception of MUTE.
 
 	if (!(CtrlPressed)){ // reissues the command without toggling it
@@ -780,7 +799,7 @@ function directEnable(ele){ // A directing room only is controlled by the Direct
 	}
 	var msg = {};
 	msg.request = "sendroom";
-	msg.roomid = session.roomid;
+	//msg.roomid = session.roomid;
 	msg.scene = "1"; // scene
 	msg.action = "display";
 	msg.value =  ele.parentNode.parentNode.dataset.enable;
@@ -804,7 +823,7 @@ function directMute(ele){ // A directing room only is controlled by the Director
 	}
 	var msg = {};
 	msg.request = "sendroom";
-	msg.roomid = session.roomid;
+	//msg.roomid = session.roomid;
 	msg.scene = "1";
 	msg.action = "mute";
 	msg.value =  ele.parentNode.parentNode.dataset.mute;
@@ -817,7 +836,7 @@ function directVolume(ele){ // A directing room only is controlled by the Direct
 	log("volume");
 	var msg = {};
 	msg.request = "sendroom";
-	msg.roomid = session.roomid;
+	//msg.roomid = session.roomid;
 	msg.scene = "1";
 	msg.action = "volume";
 	msg.target = ele.parentNode.parentNode.dataset.UUID; // i want to focus on the STREAM ID, not the UUID...
@@ -831,7 +850,7 @@ function chatRoom(chatmessage="hi"){ // A directing room only is controlled by t
 	log("Chat message");
 	var msg = {};
 	msg.request = "sendroom";
-	msg.roomid = session.roomid;
+	//msg.roomid = session.roomid;
 	msg.action = "chat";
 	msg.value = chatmessage;
 	session.sendMsg(msg); // send to everyone in the room, so they know if they are on air or not.
@@ -909,6 +928,7 @@ function publishScreen(){
 			getById("mutebutton").className="float3";
 			getById("helpbutton").className="float2";
 			getById("mutevideobutton").className="float4";
+			getById("hangupbutton").className="float6";
 		}
 		getById("head1").className = 'advanced';
 		getById("head2").className = 'advanced';
@@ -947,6 +967,7 @@ function publishWebcam(){
 		getById("mutebutton").className="float3";
 		getById("helpbutton").className="float2";
 		getById("mutevideobutton").className="float4";
+		getById("hangupbutton").className="float6";
 	}
 	updateURL("push="+session.streamID);
 	session.publishStream(stream, title);
@@ -958,7 +979,7 @@ function joinRoom(roomname, maxbitrate=false){
 		if (roomname.length){
 			log("Join room",roomname);
 			log(roomname);
-			session.joinRoom(roomname,maxbitrate).then(function(response){  // callback from server; we've joined the room
+			session.joinRoom(roomname, maxbitrate).then(function(response){  // callback from server; we've joined the room
 			
 				if (session.director){
 					var msg = {};
@@ -999,6 +1020,12 @@ function createRoom(roomname=false){
 		roomname = roomname.replace(/[\W_]+/g,"_");
 		updateURL("director="+roomname); // make the link reloadable.
 	}
+	var passwordRoom = getById("passwordRoom").value;
+	if (passwordRoom.length){
+		session.password=passwordRoom;
+		updateURL("password="+session.password);
+	}
+	
 	log(roomname);
 	if (roomname.length==0){
 		alert("Please enter a room name before continuing");
@@ -1028,12 +1055,19 @@ function createRoom(roomname=false){
 	session.director = true;
 	getById("reshare").parentNode.removeChild(getById("reshare"));
 	
-	gridlayout.innerHTML = "<br /><div style='display:inline-block'><font style='font-size:130%;color:white;'></font><input  onclick='popupMessage(event);copyFunction(this)' onmousedown='copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#78F; width:400px; font-size:100%; padding:10px; border:2px solid black; margin:5px;'  class='task' value='https://"+location.host+location.pathname+"?room="+session.roomid+"' /><font style='font-size:130%;color:white;'><i class='fa fa-video-camera' style='font-size:2em;'  aria-hidden='true'></i> - Invites users to join the group and broadcast their feed to it. These users will see every feed, so a limit of 4 is recommended.</font></div>";
+	var passAdd="";
+	var passAdd2="";
+	if (session.password){
+		passAdd="&password";
+		passAdd2="&password="+session.password;
+	}
 	
-	gridlayout.innerHTML += "<br /><font style='font-size:130%;color:white;'></font><input class='task' onclick='popupMessage(event);copyFunction(this)' onmousedown='copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#F45;width:400px;font-size:100%;padding:10px;border:2px solid black;margin:5px;' value='https://"+location.host+location.pathname+"?room="+session.roomid+"&view' /><font style='font-size:130%;color:white;'><i class='fa fa-video-camera' style='font-size:2em;'  aria-hidden='true'></i> - Link to Invite users to broadcast their feeds to the group. These users will not see or hear any feed from the group.</font><br />";
+	gridlayout.innerHTML = "<br /><div style='display:inline-block'><font style='font-size:130%;color:white;'></font><input  onclick='popupMessage(event);copyFunction(this)' onmousedown='copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#78F; width:400px; font-size:100%; padding:10px; border:2px solid black; margin:5px;'  class='task' value='https://"+location.host+location.pathname+"?room="+session.roomid+passAdd+"' /><font style='font-size:130%;color:white;'><i class='fa fa-video-camera' style='font-size:2em;'  aria-hidden='true'></i> - Invites users to join the group and broadcast their feed to it. These users will see every feed, so a limit of 4 is recommended.</font></div>";
+	
+	gridlayout.innerHTML += "<br /><font style='font-size:130%;color:white;'></font><input class='task' onclick='popupMessage(event);copyFunction(this)' onmousedown='copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#F45;width:400px;font-size:100%;padding:10px;border:2px solid black;margin:5px;' value='https://"+location.host+location.pathname+"?room="+session.roomid+passAdd+"&view' /><font style='font-size:130%;color:white;'><i class='fa fa-video-camera' style='font-size:2em;'  aria-hidden='true'></i> - Link to Invite users to broadcast their feeds to the group. These users will not see or hear any feed from the group.</font><br />";
 	
 	
-	gridlayout.innerHTML += "<font style='font-size:130%;color:white'></font><input class='task' onmousedown='copyFunction(this)' data-drag='1' onclick='popupMessage(event);copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#5F4;width:400px;font-size:100%;padding:10px;border:2px solid black;margin:5px;' value='https://"+location.host+location.pathname+"?scene=1&room="+session.roomid+"' /><font style='font-size:130%;color:white'><i class='fa fa-th-large' style='font-size:2em;' aria-hidden='true'></i> - This is an OBS Browser Source link that contains the group chat in just a single scene. Videos must be added to Group Scene.</font><br />";
+	gridlayout.innerHTML += "<font style='font-size:130%;color:white'></font><input class='task' onmousedown='copyFunction(this)' data-drag='1' onclick='popupMessage(event);copyFunction(this)' style='cursor:grab;font-weight:bold;background-color:#5F4;width:400px;font-size:100%;padding:10px;border:2px solid black;margin:5px;' value='https://"+location.host+location.pathname+"?scene=1&room="+session.roomid+passAdd2+"' /><font style='font-size:130%;color:white'><i class='fa fa-th-large' style='font-size:2em;' aria-hidden='true'></i> - This is an OBS Browser Source link that contains the group chat in just a single scene. Videos must be added to Group Scene.</font><br />";
 	
 	gridlayout.innerHTML += '<button style="margin:10px;padding:5px" onclick="toggle(getById(\'roomnotes2\'),this);">Click Here for a quick overview and help</button>';
 	
@@ -1080,12 +1114,9 @@ function enumerateDevices() {
 	log("enumerated start");
 	
 	if (typeof navigator.enumerateDevices === "function") {
-		errorlog("enumerated failed 1");
+		log("enumerated failed 1");
 		return navigator.enumerateDevices();
-	}
-	else if (typeof navigator.mediaDevices === "object" &&
-		typeof navigator.mediaDevices.enumerateDevices === "function") {
-			errorlog("enumerated failed 2");
+	} else if (typeof navigator.mediaDevices === "object" && typeof navigator.mediaDevices.enumerateDevices === "function") {
 		return navigator.mediaDevices.enumerateDevices();
 	} else {
 		return new Promise((resolve, reject) => {
@@ -1891,6 +1922,10 @@ function generateQRPage(){
 			sendstr+="&webcam";
 		}
 		
+		
+		
+		
+		
 		if (getById("invite_remotecontrol").checked){  //
 			var remote_gen_id = session.generateStreamID();
 			sendstr+="&remote="+remote_gen_id; // security
@@ -1900,6 +1935,11 @@ function generateQRPage(){
 		if (getById("invite_joinroom").value.trim().length){
 			sendstr+="&room="+getById("invite_joinroom").value.trim();
 			viewstr+="&scene=1&room="+getById("invite_joinroom").value.trim();
+		}
+		
+		if (getById("invite_password").value.trim().length){
+			sendstr+="&password";
+			viewstr+="&password="+getById("invite_password").value.trim();
 		}
 		
 		

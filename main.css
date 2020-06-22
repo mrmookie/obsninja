@@ -453,7 +453,7 @@ button {
 	height:45px;
 	bottom:80px;
 	right:32px;
-	background-color:#C23;
+	background-color:#C238;
 	color:#FFF;
 	border-radius:38px;
 	text-align:center;
@@ -468,7 +468,7 @@ button {
 	height:45px;
 	bottom:80px;
 	right:152px;
-	background-color:#15B;
+	background-color:#15B8;
 	color:#FFF;
 	border-radius:38px;
 	text-align:center;
@@ -482,7 +482,7 @@ button {
 	height:45px;
 	bottom:80px;
 	right:32px;
-	background-color:#0C2;
+	background-color:#0C28;
 	color:#FFF;
 	border-radius:38px;
 	text-align:center;
@@ -496,7 +496,7 @@ button {
 	height:45px;
 	bottom:80px;
 	right:92px;
-	background-color:#399;
+	background-color:#3998;
 	color:#FFF;
 	border-radius:38px;
 	text-align:center;
@@ -510,15 +510,38 @@ button {
 	height:45px;
 	bottom:80px;
 	right:92px;
-	background-color:#C23;
+	background-color:#C238;
 	color:#FFF;
 	border-radius:38px;
 	text-align:center;
 	box-shadow: 2px 2px 3px #999;
 	z-index:10;
 }
+
+.float6{
+	opacity: 0.8;
+	position:fixed;
+	width:45px;
+	height:45px;
+	bottom:80px;
+	right:212px;
+	background-color:#F008;
+	color:#FFF;
+	border-radius:38px;
+	text-align:center;
+	box-shadow: 2px 2px 3px #999;
+	z-index:10;
+}
+
+.rotate225 {
+   transform: rotate(135deg);
+}
+
+
+
 .my-float{
 	margin-top:7px;
+	opacity: 0.9;
 }
 
 .toggleSize {
@@ -528,7 +551,7 @@ button {
 @media only screen and (max-height: 650px) {
 	
 	.my-float{
-		margin-top:4px;
+		margin-top:3px;
 		margin-left:1px;
 	}
 	.toggleSize {
@@ -537,13 +560,13 @@ button {
 	}
 
 	.float{
-		opacity: 0.5;
+		
 		position:fixed;
 		width:30px;
 		height:30px;
 		bottom:30px;
 		right:32px;
-		background-color:#C23;
+		background-color:#C238;
 		color:#FFF;
 		border-radius:38px;
 		text-align:center;
@@ -552,13 +575,13 @@ button {
 	}
 
 	.float2{
-		opacity: 0.5;
+		
 		position:fixed;
 		width:30px;
 		height:30px;
 		bottom:30px;
 		right:152px;
-		background-color:#15B;
+		background-color:#15B8;
 		color:#FFF;
 		border-radius:38px;
 		text-align:center;
@@ -566,13 +589,13 @@ button {
 		z-index:10;
 	}
 	.float3{
-		opacity: 0.5;
+		
 		position:fixed;
 		width:30px;
 		height:30px;
 		bottom:30px;
 		right:32px;
-		background-color:#0C2;
+		background-color:#0C28;
 		color:#FFF;
 		border-radius:38px;
 		text-align:center;
@@ -580,13 +603,12 @@ button {
 		z-index:10;
 	}
 	.float4{
-		opacity: 0.5;
 		position:fixed;
 		width:30px;
 		height:30px;
 		bottom:30px;
 		right:92px;
-		background-color:#399;
+		background-color:#6BB8;
 		color:#FFF;
 		border-radius:38px;
 		text-align:center;
@@ -594,13 +616,25 @@ button {
 		z-index:10;
 	}
 	.float5{
-		opacity: 0.5;
 		position:fixed;
 		width:30px;
 		height:30px;
 		bottom:30px;
 		right:92px;
-		background-color:#C23;
+		background-color:#C238;
+		color:#FFF;
+		border-radius:38px;
+		text-align:center;
+		box-shadow: 2px 2px 3px #999;
+		z-index:10;
+	}
+	.float6{
+		position:fixed;
+		width:30px;
+		height:30px;
+		bottom:30px;
+		right:212px;
+		background-color:#F008;
 		color:#FFF;
 		border-radius:38px;
 		text-align:center;
